@@ -29,8 +29,6 @@ public class Application extends Controller {
 	}
 
 	public static void json() {
-		// returns
-		// {"_children":{"message":{"_value":"Hello World!"}},"_nodeFactory":{}}
 		Map<String, String> result = new HashMap<String, String>();
 		result.put("message", "Hello World!");
 		renderJSON(result);
@@ -42,16 +40,21 @@ public class Application extends Controller {
 		for (World w : worlds)
 			w.delete();
 		// in with the new
-		for (long i = 0; i <= 10000; i++)
-			new World(i).save();
+		for (long i = 0; i <= 10000; i++) {
+			int randomNumber = random.nextInt(TEST_DATABASE_ROWS) + 1;
+			new World(i, randomNumber).save();
+		}
 	}
 
-	public static void db(final int queries) throws InterruptedException,
+	public static void db( int queries) throws InterruptedException,
 			ExecutionException {
+		if( queries == 0)
+			queries = 1 ;
+		final int queryCount =queries ; 
 		final List<World> worlds = new ArrayList<World>();
 		Job<List<World>> job = new Job<List<World>>() {
 			public java.util.List<World> doJobWithResult() throws Exception {
-				for (int i = 0; i < queries; ++i) {
+				for (int i = 0; i < queryCount; ++i) {
 					Long id = Long
 							.valueOf(random.nextInt(TEST_DATABASE_ROWS) + 1);
 					World result = World.findById(id);
@@ -65,6 +68,8 @@ public class Application extends Controller {
 	}
 
 	public static void dbSync(int queries) {
+		if( queries == 0)
+			queries = 1 ;
 		final List<World> worlds = new ArrayList<World>();
 		for (int i = 0; i < queries; ++i) {
 			Long id = Long.valueOf(random.nextInt(TEST_DATABASE_ROWS) + 1);
