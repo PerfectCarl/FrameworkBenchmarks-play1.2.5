@@ -1,11 +1,10 @@
-
 import subprocess
 import sys
 import setup_util
 import os
 
 def start(args):
-  setup_util.replace_text("play-java/conf/application.conf", "jdbc:mysql:\/\/.*:3306", "jdbc:mysql://" + args.database_host + ":3306")
+  setup_util.replace_text("play-1.2.5/conf/application.conf", "jdbc:mysql:\/\/.*:3306", "jdbc:mysql://" + args.database_host + ":3306")
   
   subprocess.check_call("play dist", shell=True, cwd="play-java")
   subprocess.check_call("unzip play-java-1.0-SNAPSHOT.zip", shell=True, cwd="play-java/dist")
