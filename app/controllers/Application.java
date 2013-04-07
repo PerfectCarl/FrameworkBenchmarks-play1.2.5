@@ -5,16 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 import models.World;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.AsyncAppender;
-
+import play.db.jpa.JPAPlugin;
 import play.jobs.Job;
-import play.libs.F;
 import play.mvc.Controller;
 
 public class Application extends Controller {
@@ -34,23 +29,35 @@ public class Application extends Controller {
 		renderJSON(result);
 	}
 
+	@play.db.jpa.NoTransaction
 	public static void setup() {
+		JPAPlugin plugin = play.Play.plugin(JPAPlugin.class);
+		plugin.startTx(true);
+		
 		// clean out the old
-		List<World> worlds = World.findAll();
-		for (World w : worlds)
-			w.delete();
+		World.deleteAll();
+		System.out.println("DELETED");
 		// in with the new
-		for (long i = 0; i <= 10000; i++) {
+		for (long i = 0; i <= TEST_DATABASE_ROWS; i++) {
 			int randomNumber = random.nextInt(TEST_DATABASE_ROWS) + 1;
 			new World(i, randomNumber).save();
+			if (i % 100 == 0) {
+				
+				World.em().flush();
+				World.em().clear();
+				System.out.println("FLUSHED : " + i + "/" + TEST_DATABASE_ROWS);
+				
+			}
 		}
+		System.out.println("ADDED");
+		plugin.closeTx(false);
 	}
 
-	public static void db( int queries) throws InterruptedException,
+	public static void db(int queries) throws InterruptedException,
 			ExecutionException {
-		if( queries == 0)
-			queries = 1 ;
-		final int queryCount =queries ; 
+		if (queries == 0)
+			queries = 1;
+		final int queryCount = queries;
 		final List<World> worlds = new ArrayList<World>();
 		Job<List<World>> job = new Job<List<World>>() {
 			public java.util.List<World> doJobWithResult() throws Exception {
@@ -68,8 +75,8 @@ public class Application extends Controller {
 	}
 
 	public static void dbSync(int queries) {
-		if( queries == 0)
-			queries = 1 ;
+		if (queries == 0)
+			queries = 1;
 		final List<World> worlds = new ArrayList<World>();
 		for (int i = 0; i < queries; ++i) {
 			Long id = Long.valueOf(random.nextInt(TEST_DATABASE_ROWS) + 1);
