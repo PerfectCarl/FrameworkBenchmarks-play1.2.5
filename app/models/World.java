@@ -18,11 +18,13 @@ import com.google.gson.annotations.SerializedName;
 @Entity
 public class World extends GenericModel {
 
-	public World(long i) {
+	public World(long i, long number) {
 		id = i;
+		randomNumber = new Long(number);
 	}
 
 	@Id
 	public Long id;
 
+	public Long randomNumber;
 }
