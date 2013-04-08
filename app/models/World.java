@@ -20,7 +20,7 @@ public class World extends GenericModel {
 
 	public World(long i, long number) {
 		id = i;
-		randomNumber = new Long(number);
+		randomNumber = number ;
 	}
 
 	@Id
